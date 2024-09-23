@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Location and Time</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        #clock {
+            font-size: 2em;
+            margin-top: 20px;
+        }
+        #location {
+            font-size: 1.5em;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Current Location</h1>
+    <div id="location">Latitude: N/A, Longitude: N/A</div>
+
+    <h1>Current Time</h1>
+    <div id="clock">Loading...</div>
+
+    <script>
+        // Function to update the clock every second
+        function updateClock() {
+            const now = new Date();
+            const options = {
+                timeZone: 'America/Lima', // Replace with your timezone, e.g., 'America/New_York'
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            };
+            const formatter = new Intl.DateTimeFormat('en-US', options);
+            document.getElementById('clock').textContent = formatter.format(now);
+        }
+
+        // Update the clock every second
+        setInterval(updateClock, 1000);
+
+        // Update location from server
+        function fetchLocation() {
+            fetch('location_data.txt')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('location').textContent = 'Location: ' + data;
+                })
+                .catch(error => console.error('Error fetching location:', error));
+        }
+
+        // Fetch location data on load and then periodically
+        fetchLocation();
+        setInterval(fetchLocation, 1000); // Refresh every 10 seconds
+    </script>
+</body>
+</html>
+
