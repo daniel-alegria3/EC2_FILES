@@ -15,27 +15,23 @@
             font-size: 2em;
             margin-top: 20px;
         }
-        #location {
-            font-size: 1.5em;
-            margin-top: 20px;
-        }
-        #map {
-            height: 500px;
-            width: 100%;
+        #voltage {
+            padding: 20px;
+            border: 1px solid #ddd;
+            display: inline-block;
             margin-top: 20px;
         }
     </style>
 </head>
 
 <body>
-    <h1>Current Location</h1>
-    <div id="location">Latitude: N/A, Longitude: N/A</div>
+    <h1>Temperature and Humidity Data</h1>
+    <div id="voltage">
+        <p id="volt">Loading voltage...</p>
+    </div>
 
     <h1>Current Time</h1>
     <div id="clock">Loading...</div>
-
-    <h1>Location Map</h1>
-    <div id="map"></div>
 
 
     <script>
@@ -54,97 +50,36 @@
 
         // Update the clock every second
         setInterval(updateClock, 1000);
-
-
-        // Update location from server
-        function fetchLocation() {
-            fetch('location_data.txt')
-                .then(response => response.text())
-                .then(data => {
-                    const location = parseLocationData(data);
-                    document.getElementById('location').textContent = `Latitude: ${location.latitude}, Longitude: ${location.longitude}`;
-                    if (locaton.latitude && location.longitude) {
-                        initMap(location.latitude, location.longitude);
-                    }
-                })
-                .catch(error => console.error('Error fetching location:', error));
-        }
-
-        function parseLocationData(data) {
-            const regex = /Latitude: ([\-0-9\.]+), Longitude: ([\-0-9\.]+)/;
-            const match = data.match(regex);
-            if (match) {
-                return {
-                    latitude: parseFloat(match[1]),
-                    longitude: parseFloat(match[2])
-                };
-            }
-            return null;
-        }
-
-        // Fetch location data on load and then periodically
-        fetchLocation();
-        setInterval(fetchLocation, 1000); // Refresh every 10 seconds
     </script>
 
-
-   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script>
-        let map;
-        let marker;
+        function fetchVoltage() {
+            fetch('voltage.txt')
+            .then(response => response.text())
+            .then(data => {
+                // Parse the data and display it
+                let temperature, humidity, time;
 
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeMap();
-            // Fetch location every 1000 milliseconds (1 second)
-            setInterval(fetchLocationAndUpdateMap, 1000);
-        });
+                const regex = /Voltage: ([\-0-9\.]+), Time: (\d{4}-\d{2}-\d{2} [0-9]+:\d{2}:\d{2} [AaPp][Mm])/;
+                const match = data.match(regex);
+                if (match) {
+                    temperature = parseFloat(match[1]),
+                    humidity = parseFloat(match[2])
+                    time = match[3]
+                }
 
-        function initializeMap() {
-            // Initial map setup with default coordinates
-            map = L.map('map').setView([0, 0], 50);
-
-            // Load and display tile layers on the map
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
-            }).addTo(map);
-
-            // Placeholder marker that will be updated with real coordinates
-            marker = L.marker([0, 0]).addTo(map);
+                // Display the data in the HTML
+                document.getElementById('volt').textContent = "Voltage: " + temperature:
+            })
+            .catch(error => {
+                console.error('Error fetching the data:', error);
+                document.getElementById('volt').textContent = "Error loading voltage data.";
+            });
         }
 
-        function fetchLocationAndUpdateMap() {
-            fetch('location_data.txt')
-                .then(response => response.text())
-                .then(data => {
-                    const location = parseLocationData(data);
-                    if (location) {
-                        updateMap(location.latitude, location.longitude);
-                    } else {
-                        console.error('Failed to parse location data');
-                    }
-                })
-                .catch(error => console.error('Error fetching location data:', error));
-        }
-
-        function parseLocationData(data) {
-            const regex = /Latitude: ([\-0-9\.]+), Longitude: ([\-0-9\.]+)/;
-            const match = data.match(regex);
-            if (match) {
-                return {
-                    latitude: parseFloat(match[1]),
-                    longitude: parseFloat(match[2])
-                };
-            }
-            return null;
-        }
-
-        function updateMap(lat, lon) {
-            // Update marker position and center the map to the new coordinates
-            marker.setLatLng([lat, lon]);
-            map.setView([lat, lon], map.getZoom(), {animate: true});
-            marker.bindPopup('Location: ' + lat + ', ' + lon).openPopup();
-        }
+        setInterval(fetchVoltage, 1000);
     </script>
+
 
 </body>
 </html>
