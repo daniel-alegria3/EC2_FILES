@@ -15,7 +15,7 @@
             font-size: 2em;
             margin-top: 20px;
         }
-        #voltage {
+        #measures {
             padding: 20px;
             border: 1px solid #ddd;
             display: inline-block;
@@ -25,9 +25,12 @@
 </head>
 
 <body>
-    <h1>Temperature and Humidity Data</h1>
-    <div id="voltage">
-        <p id="volt">Loading voltage...</p>
+    <h1>Datos del Medidor</h1>
+    <div id="measures">
+        <p id="current">Loading Current...</p>
+        <p id="power">Loading Power...</p>
+        <p id="energy">Loading Energy...</p>
+        <p id="time">Loading Time...</p>
     </div>
 
     <h1>Current Time</h1>
@@ -53,31 +56,41 @@
     </script>
 
     <script>
-        function fetchVoltage() {
-            fetch('voltage.txt')
+        function fetchMeasures() {
+            fetch('measures.txt')
             .then(response => response.text())
             .then(data => {
-                // Parse the data and display it
-                let temperature, humidity, time;
+                // Split the data into lines
+                const lines = data.split('\n');
 
-                const regex = /Voltage: ([\-0-9\.]+), Time: (\d{4}-\d{2}-\d{2} [0-9]+:\d{2}:\d{2} [AaPp][Mm])/;
-                const match = data.match(regex);
+                // Parse the data and display it
+                let current, power, energy, time;
+
+                const regex = /Current: ([\-0-9\.]+)A, Power: ([\-0-9\.]+)W, Energy: ([\-0-9\.]+)Ws, Time: (\d{4}-\d{2}-\d{2} [0-9]+:\d{2}:\d{2} [AaPp][Mm])/;
+                const match = lines[0].match(regex);
                 if (match) {
-                    temperature = parseFloat(match[1]),
-                    humidity = parseFloat(match[2])
-                    time = match[3]
+                    current = parseFloat(match[1]),
+                    power = parseFloat(match[2]),
+                    energy = parseFloat(match[3]),
+                    time = match[4]
                 }
 
                 // Display the data in the HTML
-                document.getElementById('volt').textContent = "Voltage: " + temperature:
+                document.getElementById('current').textContent = "Current: " + current;
+                document.getElementById('power').textContent = "Power: " + power;
+                document.getElementById('energy').textContent = "Energy Consumed: " + energy;
+                document.getElementById('time').textContent = "Time: " + time;
             })
             .catch(error => {
                 console.error('Error fetching the data:', error);
-                document.getElementById('volt').textContent = "Error loading voltage data.";
+                document.getElementById('current').textContent = "Error loading 'current' data.";
+                document.getElementById('power').textContent = "Error loading 'power' data.";
+                document.getElementById('energy').textContent = "Error loading 'energy' data.";
+                document.getElementById('time').textContent = "Error loading time data.";
             });
         }
 
-        setInterval(fetchVoltage, 1000);
+        setInterval(fetchMeasures, 2000);
     </script>
 
 

@@ -1,6 +1,6 @@
 <?php
     // Define the file path
-    $file_path = "voltage.txt";  // Replace with the correct path if needed
+    $file_path = "measures.txt";  // Replace with the correct path if needed
 
     // Open the file for reading
     $file = fopen($file_path, "r");
